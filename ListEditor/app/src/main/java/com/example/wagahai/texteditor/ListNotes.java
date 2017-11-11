@@ -137,7 +137,8 @@ public class ListNotes extends AppCompatActivity {
                 openEditor(id, mime_type);
                 return true;
             case MENU_ID_EDIT_TITLE:
-                updateTitle(id);
+                String ex_title = mCursor.getString(mCursor.getColumnIndex("title"));
+                updateTitle(id, ex_title);
                 return true;
             case MENU_ID_DELETE:
                 Uri uri = ContentUris.withAppendedId(MyContentProvider.CONTENT_URI, (long)id);
@@ -203,7 +204,7 @@ public class ListNotes extends AppCompatActivity {
                 .show();
     }
 
-    public void updateTitle(final int id) {
+    public void updateTitle(final int id, final String currentTitle) {
         LayoutInflater inflater = getLayoutInflater();
         final View layout = inflater.inflate(R.layout.title_alert, null);
         new AlertDialog.Builder(this)
