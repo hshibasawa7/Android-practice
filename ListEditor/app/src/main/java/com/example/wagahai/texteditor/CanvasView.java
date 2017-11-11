@@ -33,15 +33,16 @@ public class CanvasView extends View {
         canvas.drawColor(Color.BLUE);
         //Log.d("DrawEvent", "drawed");
         //Paint paint = mPaint;
-        if (mBitmap == null) {
+        if (mBmpCanvas == null) {
 
             Log.d("ViewSize", "W:" + this.getWidth() + ", H:" + this.getHeight());
             mCanvasSize = new Rect(0, 0, this.getWidth(), this.getHeight());
-            mBitmap = Bitmap.createBitmap( (int)(this.getWidth()/SCALE),
-                                           (int)(this.getHeight()/SCALE),
-                                           Bitmap.Config.ARGB_8888);
+            Bitmap loadedBmp = mBitmap;
+            mBitmap = Bitmap.createBitmap((int) (this.getWidth() / SCALE),
+                                          (int) (this.getHeight() / SCALE),
+                                          Bitmap.Config.ARGB_8888);
             mBmpCanvas = new Canvas(mBitmap);
-            clearBmp();
+            setmBitmap(loadedBmp);
 
             mPaint.setColor(Color.BLACK);
             mPaint.setStrokeWidth(5);
@@ -82,6 +83,7 @@ public class CanvasView extends View {
         return true;
     }
     public void clearBmp() {
+        if (mBmpCanvas == null) { return; }
         mBmpCanvas.drawColor(Color.WHITE);
         px = -1.0F; py = -1.0F;
         invalidate();
@@ -93,9 +95,16 @@ public class CanvasView extends View {
         if (bmp == null) {
             clearBmp();
         } else {
-            mBmpCanvas.drawBitmap(bmp, 0, 0, null);
-            invalidate();
+            if (mBmpCanvas == null) {
+                mBitmap = bmp;
+            } else {
+                mBmpCanvas.drawBitmap(bmp, 0, 0, null);
+                invalidate();
+            }
         }
+    }
+    public int getmBitmapSize() {
+        return mBitmap.getByteCount();
     }
 }
 

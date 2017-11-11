@@ -10,7 +10,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
+import android.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -35,7 +35,7 @@ public class TextFragment extends Fragment {
 
     private ContentResolver contentResolver;
     private Uri fileUri;
-    private long id = 1;
+    private long id = -1;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -54,6 +54,7 @@ public class TextFragment extends Fragment {
 
         contentResolver = view.getContext().getContentResolver();
         fileUri = ContentUris.withAppendedId(MyContentProvider.CONTENT_URI, id);
+        loadText();
 
         clearButton.setOnClickListener(
                 new View.OnClickListener() {
@@ -67,25 +68,7 @@ public class TextFragment extends Fragment {
                 new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        byte[] data = null;
-                        try {
-                            InputStream in = contentResolver.openInputStream(fileUri);
-                            int size = in.available();
-                            data = new byte[size];
-                            in.read(data);
-                        } catch(FileNotFoundException e) {
-                            Toast.makeText(mEditText.getContext(), e.toString(),
-                                    Toast.LENGTH_LONG).show();
-                            Log.e("TextFragment", e.toString());
-                            return;
-                        } catch(IOException e) {
-                            Toast.makeText(mEditText.getContext(), e.toString(),
-                                    Toast.LENGTH_LONG).show();
-                            Log.e("TextFragment", e.toString());
-                            return;
-                        }
-                        mEditText.setText(new String(data));
-
+                        loadText();
                     }
                 }
         );
@@ -103,6 +86,12 @@ public class TextFragment extends Fragment {
                             return;
                         }
 
+                        ContentValues values = new ContentValues();
+                        values.put("length", mEditText.getText().length());
+                        Log.d("TextFragment", "text length:" + mEditText.getText().length());
+                        Uri uri = ContentUris.withAppendedId(MyContentProvider.CONTENT_URI, id);
+                        contentResolver.update(uri, values, null, null);
+
                         Toast.makeText(mEditText.getContext(), "保存完了",
                                 Toast.LENGTH_LONG).show();
 
@@ -112,5 +101,30 @@ public class TextFragment extends Fragment {
 
     }
 
+    public void setId(long id) {
+        this.id = id;
+    }
+
+    public void loadText() {
+        byte[] data = null;
+        try {
+            InputStream in = contentResolver.openInputStream(fileUri);
+            int size = in.available();
+            data = new byte[size];
+            in.read(data);
+        } catch(FileNotFoundException e) {
+            Toast.makeText(mEditText.getContext(), e.toString(),
+                    Toast.LENGTH_LONG).show();
+            Log.e("TextFragment", e.toString());
+            return;
+        } catch(IOException e) {
+            Toast.makeText(mEditText.getContext(), e.toString(),
+                    Toast.LENGTH_LONG).show();
+            Log.e("TextFragment", e.toString());
+            return;
+        }
+        mEditText.setText(new String(data));
+
+    }
 
 }

@@ -68,7 +68,7 @@ public class MyContentProvider extends ContentProvider {
             if (selection == null) { selection = "_id=" + id; }
             else { selection += "_id=" + id + selection; }
         }
-        return db.query(TABLE_NAME, projection, selection, selectionArgs, null, null, null);
+        return db.query(TABLE_NAME, projection, selection, selectionArgs, null, null, sortOrder);
     }
 
     @Nullable
@@ -84,7 +84,7 @@ public class MyContentProvider extends ContentProvider {
         if (values == null) {
             values = new ContentValues();
         }
-        if (values.get("title") == null) {
+        if (values.get("title") == null || ((String)values.get("title")).length() == 0) {
             values.put("title", "noTitle");
         }
         values.put("created", new Date().getTime());
@@ -100,14 +100,29 @@ public class MyContentProvider extends ContentProvider {
         long id = ContentUris.parseId(uri);
         if(0 <= id) {
             if (selection == null) { selection = "_id=" + id; }
-            else { selection += "_id=" + id + selection; }
+            else { selection = "_id=" + id + selection; }
         }
         return db.delete(TABLE_NAME, selection, selectionArgs);
     }
 
     @Override
     public int update(@NonNull Uri uri, @Nullable ContentValues values, @Nullable String selection, @Nullable String[] selectionArgs) {
-        return 0;
+        // Is "Nullable ContentValues" bug?
+        if (values == null) {
+            return 0;
+        }
+
+        SQLiteDatabase db = mOpenHelper.getWritableDatabase();
+        long id = ContentUris.parseId(uri);
+        if(0 <= id) {
+            if (selection == null) { selection = "_id=" + id; }
+            else { selection = "_id=" + id + selection; }
+        }
+        if (values.get("title") != null && ((String)values.get("title")).length() == 0) {
+            values.put("title", "noTitle");
+        }
+        values.put("modified", new Date().getTime());
+        return db.update(TABLE_NAME, values, selection, selectionArgs);
     }
 
 }
