@@ -1,5 +1,6 @@
 package com.example.wagahai.texteditor;
 
+import android.annotation.TargetApi;
 import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.ContentValues;
@@ -7,6 +8,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -15,12 +17,14 @@ import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.Toast;
 
 
 public class ListNotes extends AppCompatActivity {
@@ -28,6 +32,9 @@ public class ListNotes extends AppCompatActivity {
     private static final int REQUEST_CODE = 1;
     private ListView mListView;
     private Cursor mCursor;
+
+    private float x;
+    private float y;
 
     private final int MENU_ID_NEW_TEXT = 1;
     private final int MENU_ID_NEW_DRAW = 2;
@@ -46,14 +53,28 @@ public class ListNotes extends AppCompatActivity {
         mListView = (ListView)findViewById(R.id.listView);
         registerForContextMenu(mListView);
 
-        /*
+
+        mListView.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                x = event.getX();
+                y = event.getY();
+                return false;
+            }
+        });
+
         mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                view.showContextMenu();
+                if(Build.VERSION.SDK_INT >= 24) {
+                    view.showContextMenu(x, y - view.getTop());
+                } else {
+                    view.showContextMenu();
+                }
+
             }
         });
-        */
+
 
     }
 
